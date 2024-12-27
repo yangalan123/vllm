@@ -271,11 +271,10 @@ class Sampler(nn.Module):
 
         if do_top_p_top_k and flashinfer_top_k_top_p_sampling is None:
             chunked_sorting = True
+            # using chunked sorting to avoid OOM, trading-off compute for memory
             if chunked_sorting:
                 chunk_size = 64
-                # using chunked decoding to avoid OOM, essentially trade-off compute for memory
                 _empty_logits = torch.empty_like(logits)
-                # split() will only create views, so no need to worry about additional memory usage
                 logits_chunks = torch.split(logits, chunk_size, dim=0)
                 top_ps_chunks = torch.split(sampling_tensors.top_ps, chunk_size, dim=0)
                 top_ks_chunks = torch.split(sampling_tensors.top_ks, chunk_size, dim=0)
